@@ -1,2 +1,3 @@
-<h1>Games#index</h1>
-<p>Find me in app/views/games/index.html.erb</p>
+<% @games.each_with_index do |game, i| %>
+  <%= "#{i+1}: #{game.state}" %><br>
+<% end %>

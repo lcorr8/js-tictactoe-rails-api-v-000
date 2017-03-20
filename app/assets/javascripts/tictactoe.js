@@ -7,9 +7,38 @@ function attachListeners() {
     //console.log(event)
     doTurn(event);
   });
+
+  // show previous games
+  $("#previous").click(function(event) {
+    //alert("Previous button clicked");
+    $.ajax({
+      method: "GET",
+      url: "/games"
+    }).success(function(data){
+      var savedGames = data["games"]
+      debugger
+      $("#games").append("<ul></ul>")
+      for (var key in savedGames) { 
+        //var gameItem = $("<li data-state=" + savedGames[key]["state"] +" ></li>").text(key + 1)
+        $("#games ul").append("<li data-state=" + savedGames[key]["state"] +" >" + (parseInt(key) + 1) + "</li>")
+      }
+  })
+
+  //save current game
+  $("#save").click(function(event){
+    $.ajax({
+      method: "POST",
+      url: "",
+    })
+  })
+
+  
+
+  });
 }
 
 var turn = 0
+var currentGame = getBoard()
 
 function doTurn(event) {
   updateState(event);
@@ -139,3 +168,6 @@ function cellValue(data1, data2) {
 
     // })   
 //}
+
+// persistance functions
+
