@@ -16,25 +16,43 @@ function attachListeners() {
       url: "/games"
     }).success(function(data){
       var savedGames = data["games"]
-      debugger
+      //debugger
       $("#games").append("<ul></ul>")
       for (var key in savedGames) { 
         //var gameItem = $("<li data-state=" + savedGames[key]["state"] +" ></li>").text(key + 1)
         $("#games ul").append("<li data-state=" + savedGames[key]["state"] +" >" + (parseInt(key) + 1) + "</li>")
       }
-  })
+    })
+  });
 
   //save current game
-  $("#save").click(function(event){
+  $("#save").on("click", function(event){
     $.ajax({
       method: "POST",
-      url: "",
+      url: "/games",
+      dataType: 'json',
+      data: { game: { state: getBoard() }}
+    }).success(function(data){
+      //creates game by status but doesnt hit this success message
+      //i get a internal server error post.
+      alert("post request made");
+      //debugger
     })
+    var currentGameString = (getBoard())
+    //var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
+    // fetch(`/games`, {
+    //   method: "POST", 
+    //   headers: {'CSRFToken': token},
+    //   body: JSON.stringify(currentGame)
+    // })
+    //   .then(function(response){
+    //     console.log(response)
+    //})
+    // })
   })
 
   
 
-  });
 }
 
 var turn = 0
