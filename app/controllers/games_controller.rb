@@ -6,17 +6,26 @@ class GamesController < ApplicationController
   end
 
   def create
-    @game = Game.new(game_params)
+    @game = Game.create(game_params)
     #binding.pry
     redirect_to games_path
   end
 
   def update
+    #binding.pry
+    @game = Game.find(params[:id])
+    @game.update(game_params)
+    render json: @game
   end
 
   def index
     @games = Game.all
     render json: @games
+  end
+
+  def show
+    @game = Game.find(params[:id])
+    render json: @game
   end
 
   private

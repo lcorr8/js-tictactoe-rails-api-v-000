@@ -3,46 +3,40 @@ $(attachListeners)
 function attachListeners() {
   //on click add event listener to td element
   $("tbody").click(function(event) {
-    //console.log(this)
-    //console.log(event)
     doTurn(event);
   });
 
   // show previous games
   $("#previous").click(function(event) {
-    $.ajax({
-      method: "GET",
-      url: "/games"
-    }).success(function(data){
-        var savedGames = data["games"]
-        $("#games").html("")
-        if (savedGames.length > 0 ) {
-          $("#games").append("<ul></ul>")
-          for (var key in savedGames) { 
-            $("#games ul").append(`<li data-state= ${savedGames[key]["state"]} data-id = ${savedGames[key]["id"]}> ${savedGames[key]["id"]}</li>`)
-          }
-        } 
-      })
-    });
+    previousGames()
+    
+    })
 
   //save current game
   $("#save").on("click", function(event){
-    // if (persisted === false) {
+    
+    //if (persisted === false) {
       save()
+
       
-      persisted = true
+      
+    //   persisted = true
     // } else {
     //   update()
-    // }
+    //}
     
   })
 
   $(document).on("click", "li", function(event){
         //alert( "li clicked")
         console.log($(this).data("state"))
+    
+
         //var id = $(this).data("id")
-        var state = $(this).data("state")
-        //loadBoard(state);
+        var state = $(this).data("state").split(",")
+        var id = $(this).data("id")
+        loadBoard(state, id);
+        //history.pushState(null,null,`/games/${id}`)
       })
 
   //select a previous game to continue
@@ -57,12 +51,13 @@ function attachListeners() {
 
 var turn = 0
 var currentGame = getBoard()
-var persisted = false
+//var persisted = false
 var currentGameId = undefined
 
 function doTurn(event) {
   updateState(event);
   if (checkWinner()) {
+    save();
     resetBoard();
     resetTurn();
   } else {
@@ -104,6 +99,8 @@ function checkWinner() {
     if (tie()) {
       message("Tie game");
       gameOver = true;
+      
+      console.log("after tie(), before save()")
     }
   })
   return gameOver
@@ -120,6 +117,7 @@ function player(){
 function tie(){
   //if turn is last and no empty spaces on board
   if (lastTurn() && boardFull()) {
+    console.log("inside tie()")
     return true
   }
 }
@@ -150,11 +148,15 @@ function resetBoard(){
   //debugger
 }
 
-// function loadBoard(gameState){
-//   for (var i = 0; i < gameState.length; i++) {
-//     $("tbody td")[i].innerHTML(gameState[i])
-//   }
-// }
+function loadBoard(gameState, id){
+  currentGameId = id
+  var i = 0
+    $("tbody td").each(function(){
+      $(this).text(gameState[i])
+      i++
+    })
+  }
+
 
 function resetTurn(){
   turn = 0
@@ -198,11 +200,17 @@ function cellValue(data1, data2) {
 // persistance functions
 
 function save() {
+  console.log("inside save()")
   var url, method;
+
+  
   if (currentGameId) {
+    console.log("inside patch")
     method = 'PATCH'
     url = `/games/${currentGameId}`
+
   } else {
+    console.log("inside post")
     method = 'POST'
     url = `/games`
   }
@@ -212,12 +220,49 @@ function save() {
       url: url,
       dataType: 'json',
       data: { game: { state: getBoard() }}
-    }).success(function(data){
+    }).success(function(response){
       //creates game by status but doesnt hit this success message
       //i get a internal server error post.
       alert("post/patch request success");
-      //debugger
+      console.log(response)
+    }).error(function(error){
+      console.log(error)
     })
+  }
+
+  function previousGames(){
+    $.ajax({
+      method: "GET",
+      url: "/games"
+    }).success(function(data){
+        var savedGames = data["games"]
+        $("#games").html("")
+        if (savedGames.length > 0 ) {
+          $("#games").append("<ul></ul>")
+          for (var key in savedGames) { 
+            $("#games ul").append(`<li data-state= ${savedGames[key]["state"]} data-id = ${savedGames[key]["id"]}> ${savedGames[key]["id"]}</li>`)
+          }
+        } 
+      })
+  }
+
+
+  // function update() {
+  //     $.ajax({
+  //     method: 'POST',
+  //     url: `/games`,
+  //     dataType: 'json',
+  //     data: { game: { state: getBoard() }}
+  //   }).success(function(data){
+  //     //creates game by status but doesnt hit this success message
+  //     //i get a internal server error post.
+  //     alert("/patch request success");
+  //     console.log(data)
+  //     debugger
+  //   })
+  // }
+    
+
     //var currentGameString = (getBoard())
     //var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
     // fetch(`/games`, {
@@ -230,7 +275,7 @@ function save() {
     //})
     // })
     //look into serializer method that serializes data and add token ****
-}
+
 
 // function update(){
 //   var id = 
@@ -250,6 +295,8 @@ function save() {
 // if you save a game, clear the board.
 // if you win a game, do you need to save?
 // if you tie a game do you need to save?
-// how do you prevent show previous games from re adding the same games over and over?
-// clicking the save button a second time, updates the game rather than aving a new game
+// clicking the save button a second time, updates the game rather than having a new game
 // make the show game work before update so you can pull the id
+
+
+// how do you prevent show previous games from re adding the same games over and over? -- clear the element before adding the entire list again.
