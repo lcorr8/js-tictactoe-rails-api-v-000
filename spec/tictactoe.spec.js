@@ -277,6 +277,7 @@ describe('#integration tests of persistence', function() {
       jasmine.Ajax.requests.mostRecent().respondWith(response);
       $('#save').click()
       var request = jasmine.Ajax.requests.mostRecent();
+      console.log(request)
       expect(request.url).toBe('/games/1');
       expect(request.method).toBe('PATCH');
     });
@@ -381,6 +382,7 @@ describe('#integration tests of persistence', function() {
       //     //  X |   |
       var request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toBe('/games');
+      console.log(request)
       expect(request.method).toBe('POST');
     });
   });
@@ -396,10 +398,12 @@ describe('#integration tests of persistence', function() {
       $('[data-x="0"][data-y="1"]').click();
       $('[data-x="2"][data-y="0"]').click();
       $('[data-x="0"][data-y="2"]').click();
+      //console.log(currentGameId)
       //     // _X_|_O_|_O_
       //     // _X_|___|___
       //     //  X |   |
       var request = jasmine.Ajax.requests.mostRecent();
+      console.log(request)
       expect(request.url).toBe('/games');
       expect(request.method).toBe('POST');
       var data = {

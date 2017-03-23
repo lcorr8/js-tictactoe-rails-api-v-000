@@ -14,7 +14,8 @@ function attachListeners() {
 
   //save current game
   $("#save").on("click", function(event){
-    save()
+    save(false)
+
   })
 
   $(document).on("click", "li", function(event){    
@@ -42,7 +43,7 @@ var winningCombos = [
 function doTurn(event) {
   updateState(event);
   if (checkWinner()) {
-    save();
+    save(true);
     resetBoard();
     resetTurn();
   } else {
@@ -67,12 +68,12 @@ function checkWinner() {
       // should then pass this string to message()
       // should make one of two strings: "Player X Won!" or "Player O Won!"
       message("Player " + player() + " Won!");
-      gameOver = true;
+      gameOver = true
     }
     // Calls on 'message' and passes it the string 'Tie game' when there is a tie
     if (tie()) {
-      message("Tie game");
-      gameOver = true;
+      message("Tie game")
+      gameOver = true
       
       console.log("after tie(), before save()")
     }
@@ -154,8 +155,9 @@ function getTurn(){
   return turnCounter
 }
 
-function save() {
+function save(resetCurrentGameId) {
   console.log("inside save()")
+  console.log(currentGameId)
   var url, method;
 
   if (currentGameId) {
@@ -168,17 +170,23 @@ function save() {
     method = 'POST'
     url = `/games`
   }
-
+  console.log(url)
   $.ajax({
       method: method,
       url: url,
-      dataType: 'json',
+      dataType: "json",
       data: { game: { state: getBoard() }}
     }).success(function(response){
       //creates game by status but doesnt hit this success message
       //i get a internal server error post.
-      alert("post/patch request success");
-      console.log(response)
+      //alert("post/patch request success");
+      if (resetCurrentGameId) {
+        currentGameId = undefined
+      } else {
+
+        currentGameId = response.game.id
+      }
+      console.log(currentGameId)
     }).error(function(error){
       console.log(error)
     })

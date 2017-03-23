@@ -8,7 +8,7 @@ class GamesController < ApplicationController
   def create
     @game = Game.create(game_params)
     #binding.pry
-    redirect_to games_path
+    render json: @game, status: 201
   end
 
   def update
