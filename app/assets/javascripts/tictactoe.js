@@ -1,3 +1,4 @@
+
 $(attachListeners)
 
 function attachListeners() {
@@ -8,51 +9,35 @@ function attachListeners() {
 
   // show previous games
   $("#previous").click(function(event) {
-    previousGames()
-    
-    })
+    previousGames() 
+  })
 
   //save current game
   $("#save").on("click", function(event){
-    
-    //if (persisted === false) {
-      save()
-
-      
-      
-    //   persisted = true
-    // } else {
-    //   update()
-    //}
-    
+    save()
   })
 
-  $(document).on("click", "li", function(event){
-        //alert( "li clicked")
-        console.log($(this).data("state"))
-    
-
-        //var id = $(this).data("id")
-        var state = $(this).data("state").split(",")
-        var id = $(this).data("id")
-        loadBoard(state, id);
-        //history.pushState(null,null,`/games/${id}`)
-      })
-
-  //select a previous game to continue
-  // $(document).on("click", "li", function(event){
-  //   alert( "li clicked")
-  //   console.log(event)
-  // })
-
-  
-
+  $(document).on("click", "li", function(event){    
+    var state = $(this).data("state").split(",")
+    var id = $(this).data("id")
+    loadBoard(state, id);
+    turn = getTurn()
+    //history.pushState(null,null,`/games/${id}`)
+  })
 }
 
 var turn = 0
 var currentGame = getBoard()
-//var persisted = false
 var currentGameId = undefined
+var winningCombos = [
+ [[0,0],[0,1],[0,2]], 
+ [[1,0],[1,1],[1,2]], 
+ [[2,0],[2,1],[2,2]], 
+ [[0,0],[1,0],[2,0]], 
+ [[0,1],[1,1],[2,1]], 
+ [[0,2],[1,2],[2,2]], 
+ [[0,0],[1,1],[2,2]], 
+ [[2,0],[1,1],[0,2]]]
 
 function doTurn(event) {
   updateState(event);
@@ -65,21 +50,10 @@ function doTurn(event) {
   }
 }
 
- function updateState(event) {
-   //debugger
-   //event["currentTarget"].val = player()
-   $(event.target).html(player());
- }
-
- var winningCombos = [
- [[0,0],[0,1],[0,2]], 
- [[1,0],[1,1],[1,2]], 
- [[2,0],[2,1],[2,2]], 
- [[0,0],[1,0],[2,0]], 
- [[0,1],[1,1],[2,1]], 
- [[0,2],[1,2],[2,2]], 
- [[0,0],[1,1],[2,2]], 
- [[2,0],[1,1],[0,2]]]
+function updateState(event) {
+  //event["currentTarget"].val = player()
+  $(event.target).html(player());
+}
 
 function checkWinner() {
   var gameOver = false
@@ -157,11 +131,9 @@ function loadBoard(gameState, id){
     })
   }
 
-
 function resetTurn(){
   turn = 0
 }
-
 
 function message(string){
   $("#message").html(string)
@@ -171,39 +143,21 @@ function cellValue(data1, data2) {
   return $('[data-x="' + data1 + '"][data-y="' + data2 + '"]').html();
 }
 
-//function checkCells(){
-  //check current cells against winning combos
-    //loop through each combo out of 8 winning combos
-    // winningCombos.forEach(function(combo){ // [[0,0],[0,1],[0,2]]
-    //   var cell1 = combo[0] // [0,0]
-    //   var cell2 = combo[1] // [0,1]
-    //   var cell3 = combo[2] // [0,2]
-    //   //loop through and see if values all match X's
-    //    var match = []
-    //   for (i=0; i < combo.length; i++) {
-    //     var data1 = combo[i][0] //0
-    //     var data2 = combo[i][1] //0  
-    //     match.push(cellValue(data1,data2))
-    //     //debugger
-    //   }
-
-    //   if (match[0] === player() & match[1] === player() && match[2] === player()) {
-    //     message("Player " + player() + " Won!")
-        
-    //   } else {
-    //     return false
-    //   }
-
-    // })   
-//}
-
-// persistance functions
+function getTurn(){
+  board = getBoard()
+  turnCounter = 0
+  for (i=0; i<board.length; i++){
+    if (board[i] === "X" || board[i] === "O") {
+      turnCounter += 1
+    }
+  }
+  return turnCounter
+}
 
 function save() {
   console.log("inside save()")
   var url, method;
 
-  
   if (currentGameId) {
     console.log("inside patch")
     method = 'PATCH'
@@ -245,58 +199,3 @@ function save() {
         } 
       })
   }
-
-
-  // function update() {
-  //     $.ajax({
-  //     method: 'POST',
-  //     url: `/games`,
-  //     dataType: 'json',
-  //     data: { game: { state: getBoard() }}
-  //   }).success(function(data){
-  //     //creates game by status but doesnt hit this success message
-  //     //i get a internal server error post.
-  //     alert("/patch request success");
-  //     console.log(data)
-  //     debugger
-  //   })
-  // }
-    
-
-    //var currentGameString = (getBoard())
-    //var token = $( 'meta[name="csrf-token"]' ).attr( 'content' );
-    // fetch(`/games`, {
-    //   method: "POST", 
-    //   headers: {'CSRFToken': token},
-    //   body: JSON.stringify(currentGame)
-    // })
-    //   .then(function(response){
-    //     console.log(response)
-    //})
-    // })
-    //look into serializer method that serializes data and add token ****
-
-
-// function update(){
-//   var id = 
-//   $.ajax({
-//     method: "PATCH"
-//     url: "/games/" + id
-//     dataType: "json"
-//     data:
-//   }).success(function(data){
-//     alert("Update request success")
-//   })
-// }
-
-
-
-//note:
-// if you save a game, clear the board.
-// if you win a game, do you need to save?
-// if you tie a game do you need to save?
-// clicking the save button a second time, updates the game rather than having a new game
-// make the show game work before update so you can pull the id
-
-
-// how do you prevent show previous games from re adding the same games over and over? -- clear the element before adding the entire list again.
